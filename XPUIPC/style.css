@@ -1,0 +1,161 @@
+a
+{
+    text-decoration: none;
+}
+
+a:hover
+{
+    transform: translateY(-1px);
+}
+
+.paralaxContainer
+{
+    width: 100%;
+    height: 100%;
+}
+
+.paralaxContainer.front
+{
+    background-color: #004d7996;
+    height: auto;
+}
+
+.paralaxContainer.middle
+{
+    filter: blur(1px);
+    background-image: url(panoNewCut.png);
+    background-size: 100%;
+    height: 100%;
+}
+
+.paralaxContainer.back
+{
+    filter: blur(2px);
+    background-image: url(WP_20130819_003.jpg);
+    background-size: 100%;
+    height: 100%;
+}
+
+#xpuipcHeader
+{
+    position: absolute;
+}
+
+#xpuipcText
+{
+    transform: translateY(1vh);
+    font-size: 20vw;
+    position: absolute;
+    text-align: center;
+    width: 100vw;
+    color: #004b77;
+}
+
+.scrollArrow
+{
+    position: absolute;
+    transform: translateY(82vh) translateX(calc(50vw - 50px)) rotate(-45deg);
+    width: 50px;
+    height: 50px;
+    border-bottom: 25px solid #004b77;
+    border-left: 25px solid #004b77;
+
+    transition: 0.25s cubic-bezier(.7,-0.13,.52,1.41);
+}
+
+.scrollArrow:hover
+{
+    transform: translateY(85vh) translateX(calc(50vw - 50px)) rotate(-45deg);
+}
+
+#header
+{
+    height: 100vh;
+    width: 100vw;
+}
+
+#main
+{
+    padding-top: 30px;
+    background-color: #002236d2;
+    padding-bottom: 20px;
+}
+
+#footer
+{
+    background-color: #003a5c;
+    width: 100vw;
+    height: 100px;
+}
+
+#comingSoon
+{
+    color: #006097;
+    font-size: 200px;
+}
+
+#articles
+{
+    text-align: center;
+}
+
+.article
+{
+    width: 70%;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+}
+
+.article h2
+{
+    color: #1a72a5;
+    font-size: 3vw;
+}
+
+.article p
+{
+    color: #105f8d;
+    font-size: 2vw;
+}
+
+#paralaxMiddle
+{
+    filter: blur(10px);
+}
+
+#paralaxBack
+{
+    filter: blur(10px);
+}
+
+#legal
+{
+    position: absolute;
+    text-align: left;
+    transform: translateY(15px);
+    left: 15px;
+}
+
+#legal p
+{
+    color: #1a72a5;
+    margin: 15px 0px;
+    margin-right: 100px;
+}
+
+#legal a
+{
+    float: left;
+    color: #2a9de4;
+}
+
+#legal a::after
+{
+    margin-right: 15px;
+    margin-left: 15px;
+    color: #1a72a5;
+    content: "|";
+    width: 5px;
+    height: 1em;
+}

@@ -1,0 +1,52 @@
+html
+{
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+    background-color: #002738;
+    scroll-behavior: smooth;
+}
+
+body
+{
+    margin: 0px;
+}
+
+.paralaxDiv
+{
+    height: 100vh;
+    width: auto;
+    perspective: 1px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.paralax
+{
+    width: 100vw;
+    position: relative;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.paralax.back
+{
+    z-index: 0;
+    transform: translateZ(-2px) scale(3);
+    position: absolute;
+}
+
+.paralax.middle
+{
+    z-index: 500;
+    transform: translateZ(-1px) scale(2);
+    position: absolute;
+}
+
+.paralax.front
+{
+    z-index: 1000;
+    transform: translateZ(0px);
+    position: absolute;
+}
