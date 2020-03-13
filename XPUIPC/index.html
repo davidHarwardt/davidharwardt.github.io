@@ -10,45 +10,68 @@
     <link rel="shortcut icon" href="XPUIPC_logo_dark_small.png" type="image/png">
 </head>
 <body onload="onLoad()">
+    <div id="navDiv">
+        <div id="navItem0" class="navItem" onclick="location.href='#about';" navName="About"></div>
+        <div id="navItem1" class="navItem" onclick="location.href='#downloads';" navName="Downloads"></div>
+    </div>
     <div class="paralaxDiv">
         <div class="paralax front">
             <div class="paralaxContainer front">
-                <div id="header">
-                    <div id="xpuipcHeader">
-                        <h1 id="xpuipcText">XPUIPC</h1>
+                <div id="content">
+                    <div id="header">
+                        <div id="xpuipcHeader">
+                            <h1 id="xpuipcText">XPUIPC</h1>
+                        </div>
+                        <div class="scrollArrow" onclick="scrollDown()"></div>
                     </div>
-                    <div class="scrollArrow"></div>
-                </div>
-                <div id="main">
-                    <div id="articles">
-                        <div id="about" class="article">
-                            <h2>What is XPUIPC doing ?</h2>
-                            <p>
-                                A little bit of flightsim history (could be not 100% correct):
-                                In the stone age of the computer a new star was borne, the Microsoft Flightsim. It was nice and you had a chance to fly on a PC with a mouse or a joystick. After a while more and more users were interested to do more with it not only connect a mouse or joystick to it. They wanted to have access to flightsim values like heading of the plane, pitch, roll, bank, altitude and so on. Natively this was not possible. Mircrosoft had no plans to have an interface here. So a guy Adam Szofran invented an interface which uses IPC (Inter Process Communication) called FS6IPC. With this the user had suddenly access to hundreds of flightsim values. These values are „behind“ so called offsets, e.g. in offset 0x560 plus 8 byte you will find the latitude of the aircraft. You can read and write it via the FS6IPC interface....via functions provided by an SDK....OK.
-                                Then Peter Dowson came and added a lot of functions like calibration of joysticks, key to offset mapper and so on and called it FSUIPC.
-                                Now thousands of flightsim addons, airplanes, sceneries are using it, it is a quasi standard interface to MS FS until today.
-                                You have a WideClient also to get a IPC interface on a PC which is connected via IP to the flightsim machine. So you can spread addons over several PCs like Project Magenta, moving maps, etc.
-                                <br><br>
-                                Ok, then X-Plane came along the way. Natively it has two possibilities to access flightsim values:
-                                <br><br>
-                                1.	-Via UDP datagrams on a IP interface
-                                <br><br>
-                                2.	-Via datarefs from a plugin; A plugin is like a dll running in the context of X-Plane.
-                                <br><br>
-                                And then I thought wouldn‘t it be nice to use the MS FS addons with X-Plane..... To achieve that I created the XPUIPC plugin. To the outside world it has the same IPC interface like FSUIPC and I coded the same offsets into it, means under offset 0x570 + 8 byte you will find the same value like in MS FS. So if you fire up your favorite MS FS FSUIPC addon it will most likely work with X-Plane again. The XPWideClient is the pendant to the WideClient of Peter Dowson.
-                            </p>
+                    <div id="main">
+                        <div id="articles">
+                            <div id="about" class="article">
+                                <h2>What is XPUIPC doing ?</h2>
+                                <p>
+                                    A little bit of flightsim history (could be not 100% correct):
+                                    In the stone age of the computer a new star was borne, the Microsoft Flightsim. It was nice and you had a chance to fly on a PC with a mouse or a joystick. After a while more and more users were interested to do more with it not only connect a mouse or joystick to it. They wanted to have access to flightsim values like heading of the plane, pitch, roll, bank, altitude and so on. Natively this was not possible. Mircrosoft had no plans to have an interface here. So a guy Adam Szofran invented an interface which uses IPC (Inter Process Communication) called FS6IPC. With this the user had suddenly access to hundreds of flightsim values. These values are „behind“ so called offsets, e.g. in offset 0x560 plus 8 byte you will find the latitude of the aircraft. You can read and write it via the FS6IPC interface....via functions provided by an SDK....OK.
+                                    Then Peter Dowson came and added a lot of functions like calibration of joysticks, key to offset mapper and so on and called it FSUIPC.
+                                    Now thousands of flightsim addons, airplanes, sceneries are using it, it is a quasi standard interface to MS FS until today.
+                                    You have a WideClient also to get a IPC interface on a PC which is connected via IP to the flightsim machine. So you can spread addons over several PCs like Project Magenta, moving maps, etc.
+                                    <br><br>
+                                    Ok, then X-Plane came along the way. Natively it has two possibilities to access flightsim values:
+                                    <br><br>
+                                    1.	-Via UDP datagrams on a IP interface
+                                    <br><br>
+                                    2.	-Via datarefs from a plugin; A plugin is like a dll running in the context of X-Plane.
+                                    <br><br>
+                                    And then I thought wouldn‘t it be nice to use the MS FS addons with X-Plane..... To achieve that I created the XPUIPC plugin. To the outside world it has the same IPC interface like FSUIPC and I coded the same offsets into it, means under offset 0x570 + 8 byte you will find the same value like in MS FS. So if you fire up your favorite MS FS FSUIPC addon it will most likely work with X-Plane again. The XPWideClient is the pendant to the WideClient of Peter Dowson.
+                                </p>
+                            </div>
+                            <div id="downloads" class="article">
+                                <h2>Downloads</h2>
+                                <p>
+
+                                </p>
+                                <button>
+                                    <div id="downloadLatestStable" class="downloadText">Latest Stable</div>
+                                    <div id="downloadLatestStableVersion" class="downloadVersion">1.23.0</div>
+                                </button>
+                                <button>
+                                    <div id="downloadLatestBeta" class="downloadText">Latest Beta</div>
+                                    <div id="downloadLatestBetaVersion" class="downloadVersion">1.23.432</div>
+                                </button>
+                                <div id="downloadOther">
+                                    <div id="downloadOtherText" class="downloadText">Other</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="footer">
+                        <div id="legal">
+                            <p>Copyright &copy; 2020 XPUIPC Ind. All rights reserved.</p>
+                            <a href="legal.html">Legal</a>
+                            <a href="mailto:info@xpuipc.com">Contact</a>
                         </div>
                     </div>
                 </div>
-                <div id="footer">
-                    <div id="legal">
-                        <p>Copyright &copy; 2020 XPUIPC Ind. All rights reserved.</p>
-                        <a href="legal.html">Legal</a>
-                        <a href="mailto:info@xpuipc.com">Contact</a>
-                    </div>
-                </div>
-            </div>
+            </div>     
         </div>
         <div class="paralax middle">
             <div class="paralaxContainer middle" id="paralaxMiddle">

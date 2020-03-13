@@ -60,6 +60,8 @@ a:hover
     border-bottom: 25px solid #004b77;
     border-left: 25px solid #004b77;
 
+    cursor: pointer;
+
     transition: 0.25s cubic-bezier(.7,-0.13,.52,1.41);
 }
 
@@ -85,7 +87,7 @@ a:hover
 {
     background-color: #003a5c;
     width: 100vw;
-    height: 100px;
+    height: 10vh;
 }
 
 #comingSoon
@@ -105,6 +107,11 @@ a:hover
     margin-left: auto;
     margin-right: auto;
     text-align: left;
+    margin-bottom: 20px;
+    background-color: #2a9de411;
+    padding: 10px;
+    box-shadow: 0px 0px 20px 5px #00000017;
+    border-radius: 5px;
 }
 
 .article h2
@@ -117,6 +124,76 @@ a:hover
 {
     color: #105f8d;
     font-size: 2vw;
+}
+
+.article button
+{
+    width: 30%;
+    margin: 1.5%;
+    height: 100px;
+    border: none;
+    background-color: #0a3e5c42;
+    z-index: 2000;
+    transition: 0.25s linear;
+    border-radius: 50px;
+}
+
+.article button:hover
+{
+    box-shadow: 0px 0px 20px 5px #0000003d;
+    z-index: 2001;
+    transform: scale(1.1) rotateY(10deg) rotateX(10deg) rotateZ(0.3deg);
+}
+
+.article button:focus
+{
+    outline: none;
+}
+
+#downloadOther
+{
+    float: right;
+    width: 30%;
+    margin: 1.5%;
+    height: 100px;
+    border: none;
+    background-color: #0a3e5c42;
+    z-index: 2000;
+    transition: 0.25s linear;
+    border-radius: 50px;
+    font-size: 30px;
+    color: #105f8d;
+    text-align: center;
+    text-anchor: middle;
+}
+
+#downloadOther:hover #downloadOtherText::after
+{
+    content: " WIP";
+}
+
+#downloadOtherText
+{
+    transform: translateY(calc(50px - 0.6em));
+}
+
+.downloadText
+{
+    color: #105f8d;
+    font-size: 30px;
+}
+
+.downloadVersion
+{
+    font-size: 15px;
+    color: #1e72a3;
+}
+
+.downloadVersion::before
+{
+    font-size: 1em;
+    color: inherit;
+    content: "//";
 }
 
 #paralaxMiddle
@@ -133,13 +210,14 @@ a:hover
 {
     position: absolute;
     text-align: left;
-    transform: translateY(15px);
-    left: 15px;
+    transform: translateY(10%);
+    left: 2%;
 }
 
 #legal p
 {
     color: #1a72a5;
+    font-size: 2vh;
     margin: 15px 0px;
     margin-right: 100px;
 }
@@ -148,6 +226,7 @@ a:hover
 {
     float: left;
     color: #2a9de4;
+    font-size: 2vh;
 }
 
 #legal a::after
@@ -158,4 +237,75 @@ a:hover
     content: "|";
     width: 5px;
     height: 1em;
+}
+
+#navDiv
+{
+    position: fixed;
+    top: 20vh;
+    left: 1vw;
+    min-width: 40px;
+    width: 5vw;
+    border-radius: 2.5vw;
+    background-color: #1565a77a;
+    text-align: center;
+    z-index: 2000;
+
+    transition: 0.5s cubic-bezier(.25,0,.75,1);
+
+    opacity: 0;
+    visibility: hidden;
+}
+
+#navDiv.active
+{
+    visibility: visible;
+    opacity: 1;
+}
+
+.navItem
+{
+    counter-increment: numberDiv;
+    width: 4vw;
+    min-width: 32px;
+    height: 4vw;
+    min-height: 32px;
+    background-color: hsl(192, 59%, 41%);
+    border-radius: 2vw;
+    margin: 0.5vw;
+    cursor: pointer;
+    transition: 0.25s linear;
+    transform: scale(1);
+}
+
+.navItem:hover
+{
+    transform: scale(1.01);
+    box-shadow: 0px 0px 10px 1px #0000003d;
+}
+
+.navItem::after
+{
+    position: absolute;
+    content: "";
+    visibility: hidden;
+    transform: scale(0) translateX(-2vw);
+    transition: 0.25s linear;
+    opacity: 0;
+    color: #062e46;
+}
+
+.navItem:hover::after
+{
+    content: attr(navName);
+    visibility: visible;
+    transform: scale(1) translateX(-2vw);
+    opacity: inherit;
+    background-color: inherit;
+    height: 0;
+    padding-top: 1vw;
+    padding-bottom: 3vw;
+    padding-left: 4vw;
+    padding-right: 1vw;
+    border-radius: 2vw;
 }
