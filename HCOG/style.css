@@ -1,0 +1,125 @@
+html
+{
+    font-family: Arial,sans-serif;
+    color: #545d69;
+    background-color: white;
+    overflow-x: hidden;
+}
+
+#site
+{
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1600px;
+}
+
+body
+{
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+}
+
+#navBar img
+{
+    margin-left: 10vw;
+}
+
+#navBar
+{
+    padding: 8px;
+    position: fixed;
+    background-color: white;
+    width: 100vw;
+    height: 90px;
+    z-index: 10000;
+}
+
+#navBar img
+{
+    width: 210px;
+}
+
+#navItems
+{
+    position: absolute;
+    width: 50vw;
+    transform: translate(0, -55px);
+    left: 50%;
+}
+
+#body
+{
+    text-align: center;
+    transform: translate(0, 110px);
+}
+
+.navItem
+{
+    float: left;
+    padding: 10px;
+    font-size: 17px;
+    font-weight: 500;
+    color: #375886;
+}
+
+.navItem:hover .navItem::before
+{
+    border-radius: 20px;
+    content: attr(dia);
+    border: solid #304f7a 2px;
+    width: 100px;
+    min-height: 10px;
+}
+
+#schoolPano
+{
+    width: 1600px;
+    border-radius: 5px;
+    filter: hue-rotate(0deg) contrast(130%);
+    animation: rotateHue 5s infinite;
+}
+
+@keyframes rotateHue
+{
+    0%
+    {
+        filter: hue-rotate(0deg) contrast(130%);
+    }
+
+    100%
+    {
+        filter: hue-rotate(360deg) contrast(130%);
+    }
+}
+
+#articles
+{
+    margin-top: 20px;
+
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1200px;
+    text-align: left;
+    font-size: 19px;
+    line-height: 1.5em;
+    font-weight: lighter;
+}
+
+#articles b
+{
+    font-weight: bold;
+}
+
+.divisor
+{
+    width: 100%;
+    height: 40px;
+    border-bottom: solid #303030af 1px;
+}
+
+.divisorDown
+{
+    width: 100%;
+    height: 40px;
+}
