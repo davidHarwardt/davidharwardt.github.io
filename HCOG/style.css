@@ -123,3 +123,26 @@ body
     width: 100%;
     height: 40px;
 }
+
+#entryText p
+{
+    transform: skewX(10%);
+    font-size: 12px;
+    margin-top: -8px;
+    margin-left: 5px;
+}
+
+h1
+{
+    font-size: 50px;
+}
+
+.article .dateTime
+{
+
+}
+
+.article .dateTime
+{
+
+}
