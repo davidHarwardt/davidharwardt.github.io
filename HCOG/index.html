@@ -7,10 +7,13 @@
     <link rel="stylesheet" href="style.css">
     <script src="main.js"></script>
 </head>
-<body>
+<body onload="onLoad()">
+    <div id="popUp">
+        <div class="close" onclick="closePopUp()">[x]</div>
+    </div>
     <div id="site">
         <div id="navBar">
-            <img src="logo-2.png" alt="Hans-Carossa-Gymnasium">
+            <img src="https://0gfaiq.db.files.1drv.com/y4m3WKNcWKZHEE1N0C6m0LmisP9ehem_bSlIttVDPMtKKcwwZwG6_J9YwWhCTLTxLRtjnnw5gh-CFsqf2E2_qdJx7DzXuaVUqOy5osXks-zS_5sXCc2-_LYBsvZBPA3cgF8VuuCvKa_CBC6Z5saWHS3ehtThTZp1_fzEHmDoWhl9g296tcHV2Hi6n88eBqDrQhhsJ24TLNkjFK8gj3tQBXIvg?width=210&height=80&cropmode=none" alt="Hans-Carossa-Gymnasium">
             <div id="navItems">
                 <div class="navItem" dia="test">
                     Schule
@@ -31,7 +34,7 @@
         </div>
     
         <div id="body">
-            <img src="1620_weit_b.jpg" alt="Das Gymnasium" id="schoolPano">
+            <img src="https://0qfriq.db.files.1drv.com/y4mDSyUsPt2IsprvRWhsqBiAPqE9SW9HbvAtie4PYJF8sbbZAOAesoFYlWfp6iq0oaAXvvpdq3svqBRI7VxuAIxEmETSxO3Eh-TdSf3Qty7GRyOR5tnUUQMJ358LwrumKTxnrRjK2CjepuNtNJxcBC5UWUe92xmz8wYmp0ULIfz5yn__75Lgv893GMypXLpd-fgWOK4y8azvIH4rlSPjA99hg?width=1594&height=603&cropmode=none" alt="Das Gymnasium" id="schoolPano">
             <div id="articles">
                 <div id="entryText">
                     Das <b>Hans-Carossa-Gymnasium</b> ist ein Gymnasium.<p>-Confuzius</p>
@@ -41,15 +44,48 @@
                 <h1 style="text-align: center;">Neuste News vom Gümnasium</h1>
                 <div class="divisor"></div>
                 <div class="divisorDown"></div>
-                <div class="article">
-                    <img src="logo-2.png" alt="bild">
-                    <div class="dateTime">
-                        Heute - Artikelname
-                    </div>
-                    <div class="articleText">
-                        Text
+                <div class="article" id="art0">
+                    <img src="https://1gfuiq.db.files.1drv.com/y4mmf_XpC_14iBPrVmLDpv01yrONqiM6HrJ0EbAWMyo9TNgIdx1VZchEeRRBFO_nidHEqTywdexIhuWjAVceGbLLwfA4IG2ODf8O43JS_dhW35aqhTHDfvzkIPAjw6nqQdA8qjMBumEufaFSd3ynuKpZS674jjMsB1BJxGm3I0A40Y5Sij45qWmb3IWg3L9ZHWZf8gZDhrn2d-0LhcPNIeIZg?width=352&height=176&cropmode=none" alt="bild">
+                    <div class="artDiv">
+                        <div class="dateTime">
+                            Heute - Corona Ticker
+                        </div>
+                        <div class="articleTitle">
+                            Der exklusive, kompakte Corona Live Ticker!!!!!!
+                        </div>
+                        <div class="articleText">
+<i id="liveClock"></i> Uhr: Es gab im Umkreis von <i id="randomKilo"></i> km nochmal wieder mehrere Corona Fälle! <br>
+<br>
+6:9Uhr: Hochrangige Wissenschaftler der Praktikanten Uni fanden heraus, dass die Sterblichkeitsrate bei Menschen bei 100% liegt, bei dem Corona Virus sogar um 690%!!! <br>
+<br>
+0:69Uhr: Es gab im Umkreis von <i id="randomKilo1"></i> km wieder mehrere Corona Fälle! <br>
+<br>
+22:60: Es gibt eine neue Studie zum Impfstoff er wird mindestens ein Jahr brauchen! <br>
+Das fanden findige Schüler nach intensiver Recherche im sogenannten ,,Internet“ heraus. <br>
+Wir halten sie über die Entdeckung dieser Technologie auf dem laufenden! <br>
+                        </div>
                     </div>
                 </div>
+                <div class="divisor"></div>
+                <div class="divisorDown"></div>
+                <div class="article" id="art1">
+                    <img src="https://1qfpiq.db.files.1drv.com/y4mIy4GNq5tuXOymi2mLDmIZHm0a0WSYP_-yHbsNtpbe0tUVrPFXF766WvDYrtSQU5lxyy4oH4eiAzVib6B4WcTk7LBd1EC_U1waNQV4_NXFp56cJQCUxg3yfgN6f4TaKPlD501pYIGpVK0ApSrkayI3eFCZzmHOoLZEF2FgV95BcMX4Qp9eaykBc1W4LBn-o89CknMONwimDr0APKXbI7tIg?width=180&height=270&cropmode=none" alt="bild">
+                    <div class="artDiv">
+                        <div class="dateTime">
+                            Heute - Corona Ticker
+                        </div>
+                        <div class="articleTitle">
+                            Vorsicht vor Email-Scam
+                        </div>
+                        <div class="articleText">
+                            Bitte passen sie auf! Es gibt einen unartigen Buben der immer mit ,,Moinsen Mandela“ und Anagrammen in Emails um sich wirft! <br>
+                            Bitte passen sie auf! (Ihr könnt mir gerne Geld geben um den Witzbold zu bestrafen) <br>
+                            Wie ich immer zu sagen pflege: Ist die Maus satt, schmeckt das Mehl bitter.  
+                        </div>
+                    </div>
+                </div>
+                <div class="divisor"></div>
+                <div class="divisorDown"></div>
             </div>
         </div>
     </div>
