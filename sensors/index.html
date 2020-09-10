@@ -217,22 +217,30 @@ class Mathf
     <script>
         function startOrientation()
         {
-            DeviceMotionEvent.requestPermission().then
-            (
-                (response) =>
-                {
-                    if(true)
+            if(typeof(DeviceMotionEvent.requestPermission) === "function")
+            {
+                DeviceMotionEvent.requestPermission().then
+                (
+                    (response) =>
                     {
-                        window.addEventListener("devicemotion", onMove);
-                        //onMove();
-                        //alert("permission granted");
+                        if(true)
+                        {
+                            window.addEventListener("devicemotion", onMove);
+                            //onMove();
+                            //alert("permission granted");
+                        }
+                        else
+                        {
+                            //alert("permission not granted");
+                        }
                     }
-                    else
-                    {
-                        //alert("permission not granted");
-                    }
-                }
-            );
+                );
+            }
+            else if(typeof(DeviceMotionEvent) != "undefined")
+            {
+                window.addEventListener("devicemotion", onMove);
+            }
+            else{alert("DeviceMotionEvent is not supported");}
             //alert(DeviceOrientationEvent.requestPermission);
         }
         //alert("loaded");
