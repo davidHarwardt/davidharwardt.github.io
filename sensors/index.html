@@ -8,7 +8,7 @@
 <body>
     <canvas id="canvas" width="1000" height="1000"></canvas>
     <div id="test">Sensor Data</div>
-    <button onclick="startOrientation()">Click to enable Sensors</button>
+    <button onclick="startOrientation(this)">Click to enable Sensors</button>
 
     <script>
         class Vector3
@@ -215,7 +215,7 @@ class Mathf
     </script>
 
     <script>
-        function startOrientation()
+        function startOrientation(sender)
         {
             if(typeof(DeviceMotionEvent.requestPermission) === "function")
             {
@@ -241,6 +241,8 @@ class Mathf
                 window.addEventListener("devicemotion", onMove);
             }
             else{alert("DeviceMotionEvent is not supported");}
+            
+            sender.remove();
             //alert(DeviceOrientationEvent.requestPermission);
         }
         //alert("loaded");
