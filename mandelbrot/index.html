@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fractal</title>
+    <script src="main.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <canvas id="canvas" width="1000" height="1000"></canvas>
+        <input type="range" id="iterations" class="side" min="1" max="500" value="200" step="1">
+        <input type="range" id="thresh" class="side" min="0.0001" max="10" value="5" step="0.001">
+        <!-- <input type="range" id="iterations1" min="1" max="500" step="1"> -->
+    </div>
+    <!--  -->
+    <script type="shader" id="vertex">
+precision highp float;
+attribute vec3 vertexPos;
+
+uniform int iterations;
+uniform vec2 mousePos;
+uniform vec2 offset;
+uniform vec2 scale;
+uniform int julia;
+uniform float threshhold;
+
+varying highp vec3 vColor;
+varying highp float iter;
+varying highp vec2 mouse;
+varying highp vec2 off;
+varying highp vec2 sca;
+varying float drawJulia;
+varying highp float thresh;
+
+void main()
+{
+    drawJulia = float(julia);
+    vColor = vertexPos;
+    iter = float(iterations);
+    mouse = mousePos;
+    thresh = threshhold;
+
+    off = offset;
+    sca = scale;
+
+    gl_Position = vec4(vertexPos, vertexPos.z);
+}
+    </script>
+
+    <script type="shader" id="fragment">
+        precision highp float;
+        varying highp vec3 vColor;
+        varying highp float iter;
+        
+        varying float drawJulia;
+        varying highp vec2 off;
+        varying highp vec2 sca;
+
+        varying highp float thresh;
+        
+        varying highp vec2 mouse;
+        
+        vec2 sqrComplex(vec2 cmplx)
+        {
+            return vec2(pow(cmplx.x, 2.0) + ((-1.0) * pow(cmplx.y, 2.0)), 2.0 * cmplx.x * cmplx.y);
+        }
+        
+        float calcPos(vec2 pos)
+        {
+            vec2 cmplx = vec2(0, 0);
+
+            if(drawJulia == 1.0)
+            {
+                pos *= 2.0;
+                cmplx = pos - mouse;
+            }
+
+            pos *= sca;
+            pos += off;
+
+            for(int i = 0; i < 10000; i++)
+            {
+                if(drawJulia == 1.0)
+                {
+                    cmplx = sqrComplex(cmplx + mouse);
+                }
+                else
+                {
+                    cmplx = sqrComplex(cmplx + pos);
+                }
+                if(length(cmplx) > thresh)
+                {
+                    return float(i) / iter;
+                }
+                if(i > int(iter))
+                {
+                    return 1.0;
+                }
+            }
+            return 1.0;
+        }
+        
+        vec3 toColor(float val)
+        {
+            return (vec3(sin(val * 2.0), cos(val / 3.0), sin((val + 2.0) / 2.0)) * 0.5 + 0.5) * (-val + 1.0);
+        }
+        
+        void main()
+        {
+            gl_FragColor = vec4(vec3(calcPos(vColor.xy * 1.0)), 1.0);
+        
+            gl_FragColor = vec4(toColor(gl_FragColor.x), 1.0);
+        
+            if(length(vColor.xy - mouse) < 0.005)
+            {
+                gl_FragColor = -gl_FragColor + 1.0;
+            }
+            if(abs(vColor.x) < 0.005 && abs(vColor.y) < 0.005)
+            {
+                gl_FragColor = -gl_FragColor + 1.0;
+            }
+        }
+    </script>
+
+    <script type="shader" id="fragmentJulia">
+precision highp float;
+varying highp vec3 vColor;
+varying highp float iter;
+
+varying highp vec2 off;
+varying highp vec2 sca;
+
+varying highp vec2 mouse;
+
+vec2 sqrComplex(vec2 cmplx)
+{
+    return vec2(pow(cmplx.x, 2.0) + ((-1.0) * pow(cmplx.y, 2.0)), 2.0 * cmplx.x * cmplx.y);
+}
+
+float calcPos(vec2 pos)
+{
+    pos *= sca;
+    pos += off;
+
+    vec2 cmplx = vec2(pos.x, pos.y);
+    for(int i = 0; i < 10000; i++)
+    {
+        cmplx = sqrComplex(cmplx + mouse);
+        if(length(cmplx) > 5.0)
+        {
+            return float(i) / iter;
+        }
+        if(i > int(iter))
+        {
+            return 1.0;
+        }
+    }
+    return 1.0;
+}
+
+vec3 toColor(float val)
+{
+    return (vec3(sin(val * 2.0), cos(val / 3.0), sin((val + 2.0) / 2.0)) * 0.5 + 0.5) * (-val + 1.0);
+}
+
+void main()
+{
+    gl_FragColor = vec4(vec3(calcPos(vColor.xy * 1.0)), 1.0);
+
+    gl_FragColor = vec4(toColor(gl_FragColor.x), 1.0);
+
+    if(length(vColor.xy - mouse) < 0.005)
+    {
+        gl_FragColor = -gl_FragColor + 1.0;
+    }
+    if(abs(vColor.x) < 0.005 && abs(vColor.y) < 0.005)
+    {
+        gl_FragColor = -gl_FragColor + 1.0;
+    }
+}
+    </script>
+    <!--  -->
+    <style>
+        html
+        {
+            background-color: #00324e;
+            text-align: center;
+        }
+        body
+        {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            height: 100vh;
+        }
+        canvas
+        {
+            width: 90vmin;
+            height: 90vmin;
+            /* border: orange 0.2em dashed; */
+            clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%);
+            /* clip-path: polygon(10% 0, 100% 0, 100% 45%, 90% 55%, 90% 90%, 80% 100%, 0 100%, 0 10%); */
+        }
+        .container
+        {
+            width: 90vmin;
+            height: 90vmin;
+        }
+        input[type="range"]
+        {
+            font-size: 1em;
+            appearance: none;
+            height: 2vmin;
+            background-color: #006696;
+            /* clip-path: polygon(0.5em 0, 100% 0, 100% 0.5em, calc(100% - 0.5em) 100%, 0 100%, 0 0.5em); */
+            clip-path: polygon(1vmin 0, calc(100% - 1vmin) 0, 100% 1vmin, 100% 100%, 0 100%, 0 1vmin);
+            margin: 0;
+        }
+        input[type="range"]:focus
+        {
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb
+        {
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: move;
+            width: 2vmin;
+            height: 2vmin;
+            background-color: #1ea5ff;
+        }
+        input[type="range"]::-moz-range-thumb
+        {
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: ew-resize;
+            width: 1em;
+            height: 1em;
+            background-color: #001f75;
+        }
+        /* #iterations
+        {
+            position: absolute;
+            transform: rotate(90deg) translate(11.5vmin, 11.5vmin);
+            width: 25vmin;
+        }
+        #thresh
+        {
+            position: absolute;
+            transform: rotate(90deg) translate(11.5vmin, 11.5vmin);
+            width: 25vmin;
+        } */
+        .side
+        {
+            position: absolute;
+            transform: rotate(90deg) translate(11.5vmin, 11.5vmin);
+            width: 25vmin;
+        }
+        #thresh
+        {
+            transform: rotate(90deg) translate(40vmin, 11.5vmin);
+        }
+    </style>
+</body>
+</html>
