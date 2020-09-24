@@ -10,7 +10,13 @@
 </head>
 <body>
     <canvas id="canvas" width="1000" height="1000"></canvas>
-    <input type="button" value="Activate Sensors" id="sensorsBtn">
+    <div>
+        <input type="button" value="Activate Sensors" id="sensorsBtn">
+    </div>
+
+    <div>
+        Compass: <input type="checkbox" id="compassEnabled">
+    </div>
     <div id="data"></div>
 
     <!--  -->
@@ -66,6 +72,7 @@ void main()
     <style>
         *
         {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: black;
             color: orange;
             text-align: center;
