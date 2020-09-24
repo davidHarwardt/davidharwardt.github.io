@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensor Cube</title>
+    <script src="math.js" defer></script>
+    <script src="sensors.js" defer></script>
+    <script src="main.js" defer></script>
+</head>
+<body>
+    <canvas id="canvas" width="1000" height="1000"></canvas>
+    <input type="button" value="Activate Sensors" id="sensorsBtn">
+    <div id="data"></div>
+
+    <!--  -->
+    <script type="shader" id="vertex">
+precision highp float;
+attribute vec3 vertexPos;
+attribute vec3 vertexCol;
+
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+uniform vec3 rotation;
+
+varying vec3 color;
+
+void main()
+{
+    mat4 rotMat = mat4
+    (
+        cos(rotation.y), 0.0, sin(rotation.y), 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        -sin(rotation.y), 0.0, cos(rotation.y), 0.0,
+        0.0, 0.0, 0.0, 1.0
+    )*
+    mat4
+    (
+        1.0, 0.0, 0.0, 0.0,
+        0.0, cos(rotation.x), -sin(rotation.x), 0.0,
+        0.0, sin(rotation.x), cos(rotation.x), 0.0,
+        0.0, 0.0, 0.0, 1.0
+    ) * mat4
+    (
+        cos(rotation.z), -sin(rotation.z), 0.0, 0.0,
+        sin(rotation.z), cos(rotation.z), 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
+    );
+
+    color = vertexCol;
+    gl_Position = (vec4(vertexPos - 0.5, 1.0) * rotMat * modelViewMatrix) * projectionMatrix;
+}
+    </script>
+    <script type="shader" id="fragment">
+precision highp float;
+varying vec3 color;
+
+void main()
+{
+    gl_FragColor = vec4(color, 1.0);
+}
+    </script>
+    <!--  -->
+
+    <style>
+        *
+        {
+            background-color: black;
+            color: orange;
+            text-align: center;
+        }
+        canvas
+        {
+            width: 90vmin;
+            height: 90vmin;
+            border: 0.2em orange dashed;
+        }
+    </style>
+</body>
+</html>
