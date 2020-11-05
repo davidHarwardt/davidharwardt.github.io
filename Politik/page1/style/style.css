@@ -1,0 +1,17 @@
+body
+{
+    display: grid;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+
+
+#canvas
+{
+    z-index: -1;
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+}
