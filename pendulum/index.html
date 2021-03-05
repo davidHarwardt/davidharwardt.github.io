@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendulum</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="scripts/math.js" defer></script>
+    <script src="scripts/graphics.js" defer></script>
+    <script src="main.js" defer></script>
+</head>
+<body>
+    <div id="debug"></div>
+    <div id="controls">
+        <label for="timeMult">TimeMult</label>
+        <input type="number" name="timeMult" id="timeMult" value="0.05" step="0.01">
+
+        <label for="ropeLength">Length</label>
+        <input type="number" name="ropeLength" id="ropeLength" value="500" step="10">
+
+        <label for="dragValue">Drag</label>
+        <input type="number" name="dragValue" id="dragValue" value="0.9999" step="0.001">
+
+        <label for="gravValue">Gravity</label>
+        <input type="number" name="gravValue" id="gravValue" value="1" step="0.1">
+
+        <label for="height">Height</label>
+        <input type="number" name="height" id="height" value="1" step="0.1">
+
+        <label for="paused">Paused</label>
+        <input type="checkbox" name="paused" id="paused">
+
+        <label for="useDt">UseDeltaTime</label>
+        <input type="checkbox" name="useDt" id="useDt">
+    </div>
+
+    <script>
+        class Vector
+{
+    /**
+     * 
+     * @param {Number} x xPos
+     * @param {Number} y yPos
+     * @param {Number} z zPos
+     * @param {Number} w wPos
+     */
+    constructor(x = 0, y = 0, z = 0, w = 0)
+    {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.w = w;
+    }
+
+    //#region operators
+
+    /**
+     * 
+     * @param {Vector} vec 
+     */
+    add(vec)
+    {
+        return new Vector(this.x + vec.x, this.y + vec.y, this.z + vec.z, this.w + vec.w);
+    }
+
+    /**
+     * 
+     * @param {Number} scalar 
+     */
+    addScalar(scalar)
+    {
+        return new Vector(this.x + scalar, this.y + scalar, this.z + scalar, this.w + scalar);
+    }
+
+    /**
+     * 
+     * @param {Vector} vec 
+     */
+    sub(vec)
+    {
+        return new Vector(this.x - vec.x, this.y - vec.y, this.z - vec.z, this.w - vec.w);
+    }
+
+    /**
+     * 
+     * @param {Number} scalar 
+     */
+    subScalar(scalar)
+    {
+        return new Vector(this.x - scalar, this.y - scalar, this.z - scalar, this.w - scalar);
+    }
+
+    /**
+     * 
+     * @param {Vector} vec 
+     */
+    mult(vec)
+    {
+        return new Vector(this.x * vec.x, this.y * vec.y, this.z * vec.z, this.w * vec.w);
+    }
+
+    /**
+     * 
+     * @param {Number} scalar 
+     */
+    multScalar(scalar)
+    {
+        return new Vector(this.x * scalar, this.y * scalar, this.z * scalar, this.w * scalar);
+    }
+
+    /**
+     * 
+     * @param {Vector} vec 
+     */
+    div(vec)
+    {
+        return new Vector(this.x / vec.x, this.y / vec.y, this.z / vec.z, this.w / vec.w);
+    }
+
+    /**
+     * 
+     * @param {Number} scalar 
+     */
+    divScalar(scalar)
+    {
+        return new Vector(this.x / scalar, this.y / scalar, this.z / scalar, this.w / scalar);
+    }
+
+//#endregion operators
+
+    magnitude()
+    {
+        return Math.sqrt((this.x * this.x) + (this.y * this.y) + (this.z * this.z) + (this.w * this.w));
+    }
+
+    /**
+     * 
+     * @param {Number} scalar scalar to set magnitude to
+     */
+    setMagnitude(scalar)
+    {
+        return this.normalize().multScalar(scalar);
+    }
+
+    normalize()
+    {
+        if(this.magnitude() != 0)
+        {
+            return this.multScalar(1 / this.magnitude());
+        }
+        return new Vector(0, 0, 0, 0);
+    }
+
+    abs()
+    {
+        return new Vector(Math.abs(this.x), Math.abs(this.y), Math.abs(this.z), Math.abs(this.w));
+    }
+
+    /**
+     * 
+     * @param {Vector} vec1 
+     * @param {Vector} vec2 
+     * @param {Number} val 
+     */
+    static lerp(vec1, vec2, val)
+    {
+        return vec1.multScalar(1 - val).add(vec2.multScalar(val));
+    }
+
+    static lerpd(val1, val2, x)
+    {
+        return "([v1] * (1 - [x])) + ([v2] * ([x]))".replaceAll("[v1]", val1).replaceAll("[v2]", val2).replaceAll("[x]", x);
+    }
+}
+
+class Loader
+{
+    /**
+     * 
+     * @param {String} url 
+     * @param {(ex : string, status : number, response : string)} callback 
+     */
+    static loadText(url, callback)
+    {
+        var req = new XMLHttpRequest();
+
+        req.open("GET", url);
+
+        req.onload = () =>
+        {
+            callback(null, req.status, req.responseText);
+        }
+
+        req.onerror = () =>
+        {
+            callback("error");
+        }
+
+        req.send();
+    }
+
+    /**
+     * 
+     * @param {String} url 
+     */
+    static loadTextSync(url)
+    {
+        var req = new XMLHttpRequest();
+
+        req.open("GET", url, false);
+
+        req.send();
+
+        return req.responseText;
+    }
+
+    /**
+     * 
+     * @param {String[]} urls 
+     * @param {(ex : string, statuses : number[], responses : string[])} callback 
+     */
+    // static loadTexts(urls, callback)
+    // {
+    //     Loader.loadText(urls[0], () =>
+    //     {
+    //         Loader.loadTexts();
+    //     });
+    // }
+
+    static loadImg(url, callback)
+    {
+        var img = new Image();
+
+        img.onload = () =>
+        {
+            callback(null, img);
+        }
+
+        img.onerror = (ex) =>
+        {
+            callback(ex);
+        }
+
+        img.src = url;
+    }
+}
+    </script>
+
+    <script>
+        //2d canvas API by DVMUJIC
+//
+//This API tries to make using the 2d HTML5 canvas as easy and straight forward as possible, while provinding allmost direct acces to the canvas
+//
+//Usage:
+//  DrawingCanvas:
+//      Creates a simple canvas to draw on
+//
+//  ExtensionCanvas:
+//      Creates a canvas with Extension support
+
+//#region base
+
+ /**
+ * @typedef CanvasLike
+ * @type {DrawingCanvas | ExtensionCanvas}
+ */
+
+class DrawingCanvas
+{
+    /**
+     * creates a new instance of a drawing canvas
+     * @param {HTMLElement} parent parent element of canvas
+     * @param {String} id id of canvas
+     * @param {Vector} size size of canvas; (-1, -1) for auto size
+     * @param {String} clearColor clear color of the canvas
+     */
+    constructor(parent = document.body, id = "canvas", size = new Vector(-1, -1), clearColor = "#111111")
+    {
+        this.type = "default";
+
+        this.ele = document.createElement("canvas");
+
+        parent.insertAdjacentElement("beforeend", this.ele);
+
+        this.ele.id = id;
+
+        if(size.x == -1 && size.y == -1)
+        {
+            this.ele.style.width = "100vw";
+            this.ele.style.height = "100vh";
+            this.ele.style.maxHeight = "100%";
+            this.ele.style.maxWidth = "100%";
+
+            window.onresize = () =>
+            {
+                var size = this.ele.getBoundingClientRect();
+
+                this.ele.width = size.width;
+                this.ele.height = size.height;
+            }
+
+            var size = this.ele.getBoundingClientRect();
+
+            this.ele.width = size.width;
+            this.ele.height = size.height;
+        }
+
+        this.ctx = this.ele.getContext("2d");
+
+        this.ele.style.backgroundColor = clearColor;
+
+        this.clear();
+    }
+
+    /**
+     * clears the canvas element
+     */
+    clear()
+    {
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    }
+
+    /**
+     * @returns {Vector} dimensions of the canvas in pixels
+     */
+    getDimensions()
+    {
+        return new Vector(this.ctx.canvas.width, this.ctx.canvas.height);
+    }
+
+    /**
+     * draws a line between the 2 specified points
+     * @param {Vector} start start of the line
+     * @param {Vector} end end of the line
+     * @param {String} color color of the line
+     * @param {Number} width width of the line
+     * @param {CanvasLineCap} cap type of cap on the line (butt, square, round)
+     */
+    drawLine(start, end, color = "#ff0000", width = 10, cap = "butt")
+    {
+        this.ctx.lineWidth = width;
+        this.ctx.strokeStyle = color;
+        this.ctx.lineCap = cap;
+
+        this.ctx.beginPath();
+        this.ctx.moveTo(start.x, start.y);
+        this.ctx.lineTo(end.x, end.y);
+        this.ctx.stroke();
+    }
+
+    /**
+     * 
+     * @param {Vector[]} points 
+     * @param {String} color 
+     * @param {Number} width 
+     * @param {Number} res 
+     * @param {CanvasLineCap} cap 
+     */
+    drawBezier(points, color = "#ff0000", width = undefined, res = 10, cap = "round", debug = false)
+    {
+        var oldVec = points[0];
+
+        for(var i = 0; i < res + 1; i++)
+        {
+            var val = i / res;
+
+            //Curve((lerp((x(A) (1 - x) + x(B) x) (1 - x) + (x(B) (1 - x) + x(C) x) x, (x(B) (1 - x) + x(C) x) (1 - x) + (x(C) (1 - x) + x(D) x) x, x), lerp((y(A) (1 - x) + y(B) x) (1 - x) + (y(B) (1 - x) + y(C) x) x, (y(B) (1 - x) + y(C) x) (1 - x) + (y(C) (1 - x) + y(D) x) x, x)), x, -10, 10)
+
+            if(debug)
+            {
+                this.drawLine(Vector.lerp(points[0], points[1], val), Vector.lerp(points[1], points[2], val), color, width / 4, cap);
+            
+                this.drawLine(Vector.lerp(points[1], points[2], val), Vector.lerp(points[2], points[3], val), color, width / 4, cap);   
+            }       
+            
+            var vec = Vector.lerp(Vector.lerp(Vector.lerp(points[0], points[1], val), Vector.lerp(points[1], points[2], val), val), Vector.lerp(Vector.lerp(points[1], points[2], val), Vector.lerp(points[2], points[3], val), val), val);
+            
+            //(((p0 * (1 - x)) + (p1 * (x)) * (1 - x)) + ((p1 * (1 - x)) + (p2 * (x)) * (x)) * (1 - x)) + (((p1 * (1 - x)) + (p2 * (x)) * (1 - x)) + ((p2 * (1 - x)) + (p3 * (x)) * (x)) * (x))
+
+            this.drawLine(oldVec, vec, color, width, cap);
+
+            oldVec = vec;
+        }
+    }
+
+    /**
+     * draws a rectangle at pos with size
+     * @param {Vector} pos position of the reactangle
+     * @param {Vector} size size of the rectangle
+     * @param {String} color color of the ractangle
+     * @param {String} borderColor color of the reactangles border
+     * @param {Number} borderWidth width of the rectangles border
+     * @param {Boolean} fill fill of the rectangle
+     */
+    drawRect(pos, size, color = "#00ff00", borderColor = color, borderWidth = 0, fill = true)
+    {
+        this.ctx.lineWidth = borderWidth;
+
+        this.ctx.beginPath();
+
+        this.ctx.rect(pos.x, pos.y, size.x, size.y);
+
+        if(fill)
+        {
+            this.ctx.fillStyle = color;
+
+            this.ctx.fill();
+        }
+
+        if(borderWidth > 0)
+        {
+            this.ctx.strokeStyle = borderColor;
+
+            this.ctx.stroke();
+        }
+    }
+
+    /**
+     * draws a circle at pos with radius
+     * @param {Vector} pos position of the circle
+     * @param {Number} radius radius of the circle
+     * @param {String} color color of the circle
+     * @param {String} borderColor color of the circles border
+     * @param {Number} borderWidth width of the circles border
+     * @param {Boolean} fill fill of the circle
+     */
+    drawCircle(pos, radius, color = "#0000ff", borderColor = color, borderWidth = 0, fill = true)
+    {
+        this.ctx.lineWidth = borderWidth;
+
+        this.ctx.beginPath();
+
+        this.ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
+
+        if(fill)
+        {
+            this.ctx.fillStyle = color;
+
+            this.ctx.fill();
+        }
+
+        if(borderWidth > 0)
+        {
+            this.ctx.strokeStyle = borderColor;
+
+            this.ctx.stroke();
+        }
+    }
+
+    /**
+     * draws a polygon with the specified vertecies
+     * @param {Vector[]} vertecies vertecies of the polygon
+     * @param {String} color color of the polygon
+     * @param {String} borderColor color of polys border
+     * @param {Number} borderWidth width of polys border
+     * @param {Boolean} closed is polygon closed
+     * @param {Boolean} fill fill of the polygon
+     */
+    drawPoly(vertecies, color = "#ff00ff", borderColor = color, borderWidth = 0, closed = true, fill = true)
+    {
+        if(vertecies.length > 1)
+        {
+            this.ctx.lineWidth = borderWidth;
+
+            this.ctx.beginPath();
+
+            this.ctx.moveTo(vertecies[0].x, vertecies[0].y);
+
+            for(var i = 1; i < vertecies.length; i++)
+            {
+                this.ctx.lineTo(vertecies[i].x, vertecies[i].y);
+            }
+
+            if(closed)
+            {
+                this.ctx.closePath();
+            }
+
+            if(fill)
+            {
+                this.ctx.fillStyle = color;
+    
+                this.ctx.fill();
+            }
+    
+            if(borderWidth > 0)
+            {
+                this.ctx.strokeStyle = borderColor;
+    
+                this.ctx.stroke();
+            }
+        }
+        else
+        {
+            console.warn("invalid length for polygon: " + vertecies.length);
+        }
+    }
+
+    /**
+     * draws text at pos
+     * @param {Vector} pos postion of the text
+     * @param {String} text text to draw
+     * @param {Number} fontSize fontsize of the text
+     * @param {String} font font of the text
+     * @param {String} color color of the text
+     * @param {String} borderColor color of the texts border
+     * @param {String} borderWidth width of the texts border
+     * @param {String} align align of the text (left, right, center)
+     * @param {Boolean} fill fill of the text
+     */
+    drawText(pos, text, fontSize = 50, font = "Arial", color = "#000000", borderColor = color, borderWidth = 0, align = "left", fill = true)
+    {
+        this.ctx.lineWidth = borderWidth;
+        this.ctx.font = fontSize + "px " + font;
+        this.ctx.textAlign = align;
+
+        if(fill)
+        {
+            this.ctx.fillStyle = color;
+
+            this.ctx.fillText(text, pos.x, pos.y);
+        }
+
+        if(borderWidth > 0)
+        {
+            this.ctx.strokeStyle = borderColor;
+
+            this.ctx.strokeText(text, pos.x, pos.y);
+        }
+    }
+
+    //draw bezier
+    //-> order n
+
+    //draw function
+    //cb or string
+}
+
+class CanvasExtensionBase
+{
+    constructor()
+    {
+        /** @type {CanvasRenderingContext2D} */
+        this.ctx;
+        this.type = "base";
+    }
+
+    init()
+    {
+        
+    }
+
+    /**
+     * gets applied to every position vector (eg. rectangle pos)
+     * @param {Vector} vec 
+     */
+    transformVecPos(vec)
+    {
+        return vec;
+    }
+
+    /**
+     * gets applied to every size vector (eg. rectangle size)
+     * @param {Vector} vec 
+     */
+    transformVecSize(vec)
+    {
+        return vec;
+    }
+
+    /**
+     * gets applied to every scalar (eg. font size)
+     * @param {Number} scalar 
+     */
+    transformScalar(scalar)
+    {
+        return scalar;
+    }
+}
+
+class ExtensionCanvas extends DrawingCanvas
+{
+    /**
+     * creates a new instance of a drawing canvas
+     * @param {HTMLElement} parent parent element of canvas
+     * @param {String} id id of canvas
+     * @param {Vector} size size of canvas; (-1, -1) for auto size
+     * @param {String} clearColor clear color of the canvas
+     * @param {CanvasExtensionBase[]} extensions the extensions of the canvas
+     */
+    constructor(extensions = [], parent = document.body, id = "canvas", size = new Vector(-1, -1), clearColor = "#111111")
+    {
+        super(parent, id, size, clearColor);
+        this.type = "extensionCanvas";
+        this.extensions = extensions;
+
+        for(var i = 0; i < this.extensions.length; i++)
+        {
+            this.extensions[i].ctx = this.ctx;
+            this.extensions[i].init();
+        }
+    }
+
+    /**
+     * 
+     * @param {CanvasExtensionId} type 
+     * @param {Number} offset
+     * @returns {CanvasExtension}
+     */
+    getExtension(type, offset = 0)
+    {
+        for(var i = offset; i < this.extensions.length; i++)
+        {
+            if(this.extensions[i].type == type)
+            {
+                return this.extensions[i];
+            }
+        }
+        return undefined;
+    }
+
+    /**
+     * draws a line between the 2 specified points
+     * @param {Vector} start start of the line
+     * @param {Vector} end end of the line
+     * @param {String} color color of the line
+     * @param {Number} width width of the line
+     * @param {CanvasLineCap} cap type of cap on the line (butt, square, round)
+     */
+    drawLine(start, end, color = "#ff0000", width = 10, cap = "butt")
+    {
+        if(this.extensions.length > 0)
+        {
+            for(var i = 0; i < this.extensions.length; i++)
+            {
+                start = this.extensions[i].transformVecPos(start);
+                end = this.extensions[i].transformVecPos(end);
+
+                width = this.extensions[i].transformScalar(width);
+            }
+        }
+        super.drawLine(start, end, color, width, cap);
+    }
+
+    /**
+     * draws a rectangle at pos with size
+     * @param {Vector} pos position of the reactangle
+     * @param {Vector} size size of the rectangle
+     * @param {String} color color of the ractangle
+     * @param {String} borderColor color of the reactangles border
+     * @param {Number} borderWidth width of the rectangles border
+     * @param {Boolean} fill fill of the rectangle
+     */
+    drawRect(pos, size, color = "#00ff00", borderColor = color, borderWidth = 0, fill = true)
+    {
+        if(this.extensions.length > 0)
+        {
+            for(var i = 0; i < this.extensions.length; i++)
+            {
+                pos = this.extensions[i].transformVecPos(pos);
+                size = this.extensions[i].transformVecSize(size);
+
+                borderWidth = this.extensions[i].transformScalar(borderWidth);
+            }
+        }
+        super.drawRect(pos, size, color, borderColor, borderWidth, fill);
+    }
+
+    /**
+     * draws a circle at pos with radius
+     * @param {Vector} pos position of the circle
+     * @param {Number} radius radius of the circle
+     * @param {String} color color of the circle
+     * @param {String} borderColor color of the circles border
+     * @param {Number} borderWidth width of the circles border
+     * @param {Boolean} fill fill of the circle
+     */
+    drawCircle(pos, radius, color = "#0000ff", borderColor = color, borderWidth = 0, fill = true)
+    {
+        if(this.extensions.length > 0)
+        {
+            for(var i = 0; i < this.extensions.length; i++)
+            {
+                pos = this.extensions[i].transformVecPos(pos);
+                radius = this.extensions[i].transformScalar(radius);
+
+                borderWidth = this.extensions[i].transformScalar(borderWidth);
+            }
+        }
+        super.drawCircle(pos, radius, color, borderColor, borderWidth, fill);
+    }
+
+    /**
+     * draws a polygon with the specified vertecies
+     * @param {Vector[]} vertecies vertecies of the polygon
+     * @param {String} color color of the polygon
+     * @param {String} borderColor color of polys border
+     * @param {Number} borderWidth width of polys border
+     * @param {Boolean} closed is polygon closed
+     * @param {Boolean} fill fill of the polygon
+     */
+    drawPoly(vertecies, color = "#ff00ff", borderColor = color, borderWidth = 0, closed = true, fill = true)
+    {
+        if(this.extensions.length > 0)
+        {
+            for(var i = 0; i < this.extensions.length; i++)
+            {
+                for(var j = 0; j < vertecies.length; j++)
+                {
+                    vertecies[j] = this.extensions[i].transformVecPos(vertecies[j]);
+                }
+
+                borderWidth = this.extensions[i].transformScalar(borderWidth);
+            }
+        }
+        super.drawPoly(vertecies, color, borderColor, borderWidth, closed, fill);
+    }
+
+    /**
+     * draws text at pos
+     * @param {Vector} pos postion of the text
+     * @param {String} text text to draw
+     * @param {Number} fontSize fontsize of the text
+     * @param {String} font font of the text
+     * @param {String} color color of the text
+     * @param {String} borderColor color of the texts border
+     * @param {String} borderWidth width of the texts border
+     * @param {String} align align of the text (left, right, center)
+     * @param {Boolean} fill fill of the text
+     */
+    drawText(pos, text, fontSize = 50, font = "Arial", color = "#000000", borderColor = color, borderWidth = 0, align = "left", fill = true)
+    {
+        if(this.extensions.length > 0)
+        {
+            for(var i = 0; i < this.extensions.length; i++)
+            {
+                pos = this.extensions[i].transformVecPos(pos);
+
+                fontSize = this.extensions[i].transformScalar(fontSize);
+                borderWidth = this.extensions[i].transformScalar(borderWidth);
+            }
+        }
+        super.drawText(pos, text, fontSize, font, color, borderColor, borderWidth, align, fill);
+    }
+}
+
+//#endregion base
+
+//#region canvasExtensions
+
+ /**
+ * @typedef CanvasExtensionId
+ * @type {"base" | "scale" | "offset" | "mouse"}
+ */
+
+ /**
+ * @typedef CanvasExtension
+ * @type {CanvasExtensionBase | CanvasScaleExtension | CanvasOffsetExtension | CanvasMouseExtension}
+ */
+
+class CanvasScaleExtension extends CanvasExtensionBase
+{
+    constructor(scale = 1)
+    {
+        super();
+        this.scale = scale;
+        this.type = "scale";
+    }
+
+    /**
+     * @param {Vector} vec 
+     */
+    transformVecPos(vec)
+    {
+        return vec.multScalar(this.scale);
+    }
+
+    /**
+     * @param {Vector} vec 
+     */
+    transformVecSize(vec)
+    {
+        return vec.multScalar(this.scale);
+    }
+
+    /**
+     * @param {Number} scalar 
+     */
+    transformScalar(scalar)
+    {
+        return scalar * this.scale;
+    }
+}
+
+class CanvasOffsetExtension extends CanvasExtensionBase
+{
+    constructor(offset = new Vector(0, 0))
+    {
+        super();
+        this.offset = offset;
+        this.type = "offset";
+    }
+
+    /**
+     * @param {Vector} vec 
+     */
+    transformVecPos(vec)
+    {
+        return vec.add(this.offset);
+    }
+}
+
+class CanvasMouseExtension extends CanvasExtensionBase
+{
+    constructor(blockCtx = true)
+    {
+        super();
+        this.blockCtx = blockCtx;
+        this.type = "mouse";
+        this.mousePos = new Vector(0, 0);
+        this.buttons = [false, false, false];
+        this.mousePosOld = new Vector(0, 0);
+
+        /** 
+         * @callback mouseCallback
+         * @param {MouseEvent} ev
+         */
+
+        /** @type {mouseCallback} */
+        this.onclick = undefined;
+
+        /** @type {mouseCallback} */
+        this.onmousedown = undefined;
+
+        /** @type {mouseCallback} */
+        this.onmouseup = undefined;
+    }
+
+    init()
+    {
+        this.ctx.canvas.addEventListener("mousemove", (ev) =>
+        {
+            var bounding = this.ctx.canvas.getBoundingClientRect();
+
+            this.mousePos = new Vector(ev.clientX, ev.clientY).sub(new Vector(bounding.left, bounding.top));
+        });
+
+        this.ctx.canvas.addEventListener("mousedown", (ev) =>
+        {
+            this.buttons[ev.button] = true;
+            if(this.onmousedown)
+            {
+                this.onmousedown(ev);
+            }
+        });
+
+        this.ctx.canvas.addEventListener("mouseup", (ev) =>
+        {
+            this.buttons[ev.button] = false;
+            if(this.onmouseup)
+            {
+                this.onmouseup(ev);
+            }
+        });
+
+        if(this.blockCtx)
+        {
+            this.ctx.canvas.addEventListener("contextmenu", (ev) =>
+            {
+                ev.preventDefault();
+            });
+        }
+
+        this.ctx.canvas.addEventListener("click", (ev) =>
+        {
+            if(this.onclick)
+            {
+                this.onclick(ev);
+            }
+        });
+    }
+
+    delta()
+    {
+        var delta = this.mousePos.sub(this.mousePosOld);
+
+        this.mousePosOld.x = this.mousePos.x;
+        this.mousePosOld.y = this.mousePos.y;
+
+        return delta;
+    }
+}
+
+//#endregion canvasExtensions
+
+    </script>
+
+    <script>
+        const canvas = new ExtensionCanvas();
+
+var debugEle = document.getElementById("debug");
+
+var elements = {
+    timeMult: document.getElementById("timeMult"),
+    ropeLenght: document.getElementById("ropeLength"),
+    dragValue: document.getElementById("dragValue"),
+    gravValue: document.getElementById("gravValue"),
+    height: document.getElementById("height"),
+    paused: document.getElementById("paused"),
+    useDt: document.getElementById("useDt"),
+};
+
+var center = new Vector(canvas.ctx.canvas.width / 2, 100);
+var stringLength = 500;
+
+var gravity = 1;
+var mass = 1;
+
+var pos = new Vector(stringLength, 0).add(center);
+var vel = new Vector(0, 0);
+var acc = new Vector(0, 0);
+var oldDt = 0;
+
+var timeMult = 1/17;
+var drag = 0.999;
+
+var running = true;
+var showDebug = true;
+var useDeltaTime = true;
+var debugVecMult = 5;
+
+var drawTrail = true;
+var trailLenght = 100;
+var trail = [pos];
+var trailScale = 0.9;
+
+var dir = -1;
+var lastPeriodStart = Date.now();
+var lastPeriod = 0;
+
+function restart()
+{
+    center = new Vector(canvas.ctx.canvas.width / 2, 100);
+    stringLength = 500;
+
+    gravity = 1;
+    mass = 1;
+
+    pos = new Vector(stringLength * 1, 0).add(center);
+    vel = new Vector(0, 0);
+    acc = new Vector(0, 0);
+    oldDt = 0;
+
+    timeMult = 1/17;
+    drag = 0.999;
+
+    running = true;
+    showDebug = true;
+    useDeltaTime = true;
+    debugVecMult = 5;
+
+    updateValues();
+}
+
+function updateValues()
+{
+    running = !elements.paused.checked;
+    useDeltaTime = elements.useDt.checked;
+    timeMult = elements.timeMult.value ? parseFloat(elements.timeMult.value) : 1 / 17;
+    drag = elements.dragValue.value ? parseFloat(elements.dragValue.value) : 0.999;
+    gravity = elements.gravValue.value ? parseFloat(elements.gravValue.value) : 1;
+    
+    stringLength = elements.ropeLenght.value ? parseFloat(elements.ropeLenght.value) : 500;
+}
+
+function draw(dt)
+{
+    var debug = "";
+    var deltaTimeOg = dt - oldDt;
+    var deltaTime = deltaTimeOg * timeMult;
+
+    updateValues();
+
+    if(!useDeltaTime)
+    {
+        deltaTime = 1;
+    }
+    
+    canvas.clear();
+    
+    var strLen = center.sub(pos).magnitude();
+    
+
+    if(running)
+    {
+        if(strLen > stringLength)
+        {
+            var forceVec = center.sub(pos);
+    
+            forceVec = forceVec.setMagnitude(forceVec.magnitude() - stringLength);
+    
+            vel = vel.add(forceVec.multScalar(deltaTime));
+    
+            //debug += forceVec.x.toFixed(2) + ", " + forceVec.y.toFixed(2);
+        }
+        
+        vel = vel.add(new Vector(0, gravity).multScalar(deltaTime));
+        vel = vel.add(acc.multScalar(deltaTime));
+        pos = pos.add(vel.multScalar(deltaTime));
+
+        if(Math.sign(vel.x) != dir)
+        {
+            //console.log("switch");
+
+            lastPeriod = (Date.now() - lastPeriodStart) / 1000;
+
+            lastPeriodStart = Date.now();
+        }
+
+        dir = Math.sign(vel.x);
+        
+        vel = vel.multScalar(drag);
+    }
+    else
+    {
+        pos = new Vector(Math.sin(elements.height.value) * stringLength, Math.cos(elements.height.value) * stringLength).add(center);
+        vel = new Vector(0, 0);
+        acc = new Vector(0, 0);
+    }
+
+    trail.push(new Vector(pos.x, pos.y));
+
+    if(trail.length > trailLenght)
+    {
+        trail.splice(0, 1);
+    }
+
+    if(drawTrail)
+    {
+        for(var i = 0; i < trail.length; i++)
+        {
+            canvas.drawCircle(trail[i], (50 / trail.length) * i * trailScale, `hsl(218, 100%, ${(i / trail.length) * 15 + 10}%)`);
+        }
+    }
+    
+    canvas.drawLine(center, pos, "#aaaaaa");
+    
+    canvas.drawCircle(center, 10, "#ffffff");
+    canvas.drawCircle(pos, 50);
+
+    debug += `FPS           : ${(1 / (deltaTimeOg / 1000)).toFixed(0)}\n`;
+    debug += `deltaTime     : ${(deltaTime).toFixed(2)}\n`;
+    debug += `time          : ${timeMult.toFixed(2)}x\n`;
+    debug += `length        : ${strLen.toFixed(2)}\n`;
+    debug += `tragetLength  : ${stringLength.toFixed(2)}\n`;
+    debug += `\n`;
+    debug += `gravity       : ${gravity.toFixed(2)}\n`;
+    debug += `dragMultiplier: ${drag}\n`;
+    debug += `\n`;
+    debug += `lastPeriod    : ${lastPeriod.toFixed(2)}s\n`;
+    
+    if(showDebug)
+    {
+        //canvas.drawLine(pos, pos.add(vel.multScalar(debugVecMult)), "#ff0000", undefined, "round");
+    }
+    else
+    {
+        debug = "";
+    }
+
+    debugEle.innerHTML = debug;
+    oldDt = dt;
+
+    requestAnimationFrame(draw);
+}
+
+requestAnimationFrame(draw);
+    </script>
+</body>
+</html>
